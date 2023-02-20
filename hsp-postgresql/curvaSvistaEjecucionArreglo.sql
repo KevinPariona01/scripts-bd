@@ -1,5 +1,5 @@
-CREATE OR REPLACE VIEW public.vw_obra_avanceprogramadovsrealejecutado_tabla
- AS
+--CREATE OR REPLACE VIEW public.vw_obra_avanceprogramadovsrealejecutado_tabla
+ --AS
  WITH programado AS (
          SELECT p_1.n_monto,
             to_char((('01/'::text || ("right"('0'::text || p_1.n_mes, 2) || '/'::text)) || p_1.n_anio)::timestamp without time zone, 'Mon-yy'::text) AS fecha,
@@ -11,55 +11,19 @@ CREATE OR REPLACE VIEW public.vw_obra_avanceprogramadovsrealejecutado_tabla
                   WHERE v2.n_borrado = 0 AND v2.n_idgen_proyecto = v.n_idgen_proyecto AND v2.n_idgen_fase = 3)) AND v.n_idgen_fase = 3
           ORDER BY p_1.n_orden
         ), fecha AS (
-         SELECT vw_datoadicional_tareaproyecto.n_idpro_tareaproyecto,
-            vw_datoadicional_tareaproyecto.c_valordatoadicional::text AS mes_anio
+         SELECT vw_datoadicional_tareaproyecto.n_idgen_proyecto,
+			vw_datoadicional_tareaproyecto.n_idpro_tareaproyecto,
+            vw_datoadicional_tareaproyecto.c_valordatoadicional AS mes_anio
            FROM vw_datoadicional_tareaproyecto
           WHERE vw_datoadicional_tareaproyecto.n_idgen_tarea = 118 AND vw_datoadicional_tareaproyecto.c_datoadicional::text = 'Mes-Año'::text AND vw_datoadicional_tareaproyecto.c_valordatoadicional::text <> 'null'::text
         ), base AS (
          SELECT vw_datoadicional_tareaproyecto.n_idgen_proyecto,
             vw_datoadicional_tareaproyecto.n_idpro_tareaproyecto,
-			vw_datoadicional_tareaproyecto.c_datoadicional
-                /**CASE vw_datoadicional_tareaproyecto.c_datoadicional
-                    WHEN 'Mensual (S/) Programado'
-                    ELSE '0'
-                END AS mensual_programado,
-                CASE vw_datoadicional_tareaproyecto.c_datoadicional
-                    WHEN 'Acumulado (S/) Programado'
-                    ELSE '0'
-                END AS acumulado_programado,
-                CASE vw_datoadicional_tareaproyecto.c_datoadicional
-                    WHEN 'Acumulado (%) Programado'
-                    ELSE '0'
-                END AS acum_porcen_programado,
-                CASE vw_datoadicional_tareaproyecto.c_datoadicional
-                    WHEN 'Contractual Ejecutado'
-                    ELSE '0'
-                END AS contractual_ejecutado,
-                CASE vw_datoadicional_tareaproyecto.c_datoadicional
-                    WHEN 'Mayor Metrado Ejecutado'
-                    ELSE '0'
-                END AS acumulado_mm_ejecutado,
-                CASE vw_datoadicional_tareaproyecto.c_datoadicional
-                    WHEN 'Prest. Adicional Ejecutado'
-                    ELSE '0'
-                END AS acumulado_pa_ejecutado,
-                CASE vw_datoadicional_tareaproyecto.c_datoadicional
-                    WHEN 'Mensual (S/) Ejecutado'
-                    ELSE '0'
-                END AS suma_acum_pa_ejecutado,
-                CASE vw_datoadicional_tareaproyecto.c_datoadicional
-                    WHEN 'Acumulado (S/) Ejecutado'
-                    ELSE '0'
-                END AS total_acum_ejecutado,
-                CASE vw_datoadicional_tareaproyecto.c_datoadicional
-                    WHEN 'Acumulado (%) Ejecutado'
-                    ELSE '0'
-                END AS acum_porcen_ejecutado,
-                CASE vw_datoadicional_tareaproyecto.c_datoadicional
-                    WHEN 'Avance (%) Ejecutado'
-                    ELSE '0'
-                END AS avance_ejecutado_porcentaje*/
+			vw_datoadicional_tareaproyecto.c_datoadicional,
+			vw_datoadicional_tareaproyecto.c_valordatoadicional,
+			f.mes_anio AS mes_anio_base
            FROM vw_datoadicional_tareaproyecto
+			INNER JOIN fecha f ON vw_datoadicional_tareaproyecto.n_idpro_tareaproyecto = f.n_idpro_tareaproyecto
           WHERE vw_datoadicional_tareaproyecto.n_idgen_tarea = 118 AND (vw_datoadicional_tareaproyecto.c_datoadicional::text = ANY (ARRAY['Mensual (S/) Programado'::character varying::text, 'Acumulado (S/) Programado'::character varying::text, 'Acumulado (S/) Programado'::character varying::text, 'Acumulado (%) Programado'::character varying::text, 'Contractual Ejecutado'::character varying::text, 'Mayor Metrado Ejecutado'::character varying::text, 'Prest. Adicional Ejecutado'::character varying::text, 'Mensual (S/) Ejecutado'::character varying::text, 'Acumulado (S/) Ejecutado'::character varying::text, 'Acumulado (%) Ejecutado'::character varying::text, 'Avance (%) Ejecutado'::character varying::text])) AND vw_datoadicional_tareaproyecto.c_valordatoadicional::text <> 'null'::text
         )/*, preliminar AS (
          SELECT b.n_idgen_proyecto,
@@ -80,22 +44,24 @@ CREATE OR REPLACE VIEW public.vw_obra_avanceprogramadovsrealejecutado_tabla
           GROUP BY b.n_idgen_proyecto, b.n_idpro_tareaproyecto, f.mes_anio
           ORDER BY b.n_idgen_proyecto, b.n_idpro_tareaproyecto
         )*/
- SELECT p.n_idgen_proyecto,
-    p.fecha AS mes_anio,
-    p.n_monto AS mensual_prog,
-	pre.c_datoadicional
-    /*pre.acumulador_prog AS acumulador_prog,
-    pre.porcentaje_prog AS porcentaje_prog,
-    pre.acum_contractual_eje AS acum_contractual_eje,
-    pre.acumulado_mm_eje AS acumulado_mm_eje,
-    pre.acumulado_pa_eje AS acumulado_pa_eje,
-    pre.acumulado_pa_suma_eje AS acumulado_pa_suma_eje,
-    pre.total_acumulado_eje AS total_acumulado_eje,
-    pre.porcentaje_eje AS porcentaje_eje,
-    pre.avance, 0::double precision) AS avance*/
+ SELECT 
+ 	p.n_idgen_proyecto,
+    --p.fecha AS mes_anio,
+	b1.c_datoadicional,
+	b1.c_valordatoadicional,
+	b1.mes_anio_base,
+	fn_validanumero(b1.c_valordatoadicional) b_acumuladocontractual,
+	fn_validafecha(b1.mes_anio_base) b_mes_anio,
+	fn_validanumero(b1.c_valordatoadicional) AND fn_validafecha(b1.mes_anio_base) AS tiene_error 
    FROM programado p
-     LEFT JOIN base pre ON p.n_idgen_proyecto = pre.n_idgen_proyecto --AND p.fecha = pre.mes_anio;
+     INNER JOIN base b1 ON p.n_idgen_proyecto = b1.n_idgen_proyecto
 	WHERE p.n_idgen_proyecto = 12
+	GROUP BY b1.c_datoadicional, b1.c_valordatoadicional, b1.mes_anio_base, p.n_idgen_proyecto
+	ORDER BY tiene_error
 
-ALTER TABLE public.vw_obra_avanceprogramadovsrealejecutado
-    OWNER TO postgres;
+--ALTER TABLE public.vw_obra_avanceprogramadovsrealejecutado
+    --OWNER TO postgres;
+	
+	
+	
+	
