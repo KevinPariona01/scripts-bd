@@ -1,5 +1,6 @@
---CREATE OR REPLACE VIEW public.vw_obra_avanceprogramadovsrealejecutado_tabla
- --AS
+--SELECT * FROM vw_obra_avanceprogramadovsrealejecutado_tabla
+CREATE OR REPLACE VIEW public.vw_obra_avanceprogramadovsrealejecutado_tabla
+ AS
  WITH programado AS (
          SELECT p_1.n_monto,
             to_char((('01/'::text || ("right"('0'::text || p_1.n_mes, 2) || '/'::text)) || p_1.n_anio)::timestamp without time zone, 'Mon-yy'::text) AS fecha,
@@ -46,21 +47,22 @@
         )*/
  SELECT 
  	p.n_idgen_proyecto,
-    --p.fecha AS mes_anio,
+    p.fecha AS mes_anio,
 	b1.c_datoadicional,
 	b1.c_valordatoadicional,
 	b1.mes_anio_base,
-	fn_validanumero(b1.c_valordatoadicional) b_acumuladocontractual,
-	fn_validafecha(b1.mes_anio_base) b_mes_anio,
+	fn_validanumero(b1.c_valordatoadicional) val_c_valordatoadicional,
+	fn_validafecha(b1.mes_anio_base) val_mes_anio,
 	fn_validanumero(b1.c_valordatoadicional) AND fn_validafecha(b1.mes_anio_base) AS tiene_error 
    FROM programado p
      INNER JOIN base b1 ON p.n_idgen_proyecto = b1.n_idgen_proyecto
-	WHERE p.n_idgen_proyecto = 12
-	GROUP BY b1.c_datoadicional, b1.c_valordatoadicional, b1.mes_anio_base, p.n_idgen_proyecto
-	ORDER BY tiene_error
+	GROUP BY b1.c_datoadicional, b1.c_valordatoadicional, b1.mes_anio_base, p.n_idgen_proyecto, p.fecha
+	ORDER BY tiene_error ASC
 
 --ALTER TABLE public.vw_obra_avanceprogramadovsrealejecutado
     --OWNER TO postgres;
+	
+	--WHERE p.n_idgen_proyecto = 12
 	
 	
 	

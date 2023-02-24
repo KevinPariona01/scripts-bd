@@ -1,13 +1,14 @@
 SELECT * FROM seg_user
 SELECT * FROM pro_atributo
-SELECT * FROM vw_obra_avanceprogramadovsrealejecutado WHERE n_idgen_proyecto = 12
+SELECT * FROM vw_supervision_avanceprogramadovsrealejecutado WHERE n_idgen_proyecto = 34
+
 SELECT * FROM vw_datoadicional_tareaproyecto WHERE c_datoadicional = 'Contractual Ejecutado' AND n_idgen_proyecto = 20
 SELECT * FROM gen_datoadicional WHERE c_dato = 'Contractual Ejecutado'  
 
 
-SELECT * FROM pro_adicionalvalor WHERE c_valor = '114945.81' 		n_idgen_datoadicional = 356 and n_idgen_proyecto = 20  
+SELECT * FROM pro_adicionalvalor WHERE c_valor = '41503.39' 		n_idgen_datoadicional = 356 and n_idgen_proyecto = 20  
 
-UPDATE pro_adicionalvalor SET c_valor = '114945.81' WHERE n_idpro_adicionalvalor = 7335
+UPDATE pro_adicionalvalor SET c_valor = '41503.39' WHERE n_idpro_adicionalvalor = 5181
 
 ---
 -- View: public.vw_obra_avanceprogramadovsrealejecutado
